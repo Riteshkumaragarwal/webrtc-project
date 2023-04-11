@@ -1,0 +1,16 @@
+
+<div class="panel" *ngIf="showMePartially">
+    <div class="messages">
+        <div class="inner">
+            <div class="message" *ngFor="let message of messages">
+                <span class="sender" *ngIf="message.id && message.type === 'sender'">you:-</span>
+                <span class="reciever" *ngIf="message.id && message.type === 'receiver'">{{message.name}}:- </span>
+                <div id="message">{{ message.message }}</div>
+            </div>
+        </div>
+    </div>
+    <form #userData="ngForm" (ngSubmit)="sendMessage(userData)">
+        <input #messageInput type="text" name="text" ngModel id="input" placeholder="Enter Your Message...">
+        <button (click)="clearText()">+</button>
+    </form>
+</div>
