@@ -1,5 +1,5 @@
 <div class="row justify-content-between">
-    <div class="body col-md-10">
+    <div class="body col-md-9">
         <h1 class="left-align">Get started with Video Calling</h1>
         <form #userForm="ngForm" (ngSubmit)="joinBtn(userForm)">
             <div class="form-group col-md-6 offset-md-3">
@@ -21,23 +21,26 @@
         </form>
         <div class="userStreams" id="user-streams">
             <div id="agora_local" [ngClass]="userName ? 'video-containers' : ''">
-                <div class="user-uid">{{userName}}</div>
+                <div class="user-uid">{{userName | titlecase}}</div>
                 <div *ngIf="profileImage" [hidden]="images"><img *ngIf="url" src="{{profileImage}}"
                         class="video-images"></div>
             </div>
-            <div *ngIf="sharingScreen && screen" id="screen_share" [ngClass]="userName ? 'video-containers' : ''">
-                <div class="user-uid">{{userName}}(Presentation)</div>
-            </div>
 
+            <!-- <div *ngIf="!videoDestroyed"> -->
             <div class="agora_remote video-containers" *ngFor="let remote of remoteCalls;let i=index" [id]="remote.uid">
-                <div class="user-uid">{{ remote.username }}</div>
+                <div class="user-uid">{{ remote.username | titlecase}}</div>
                 <div *ngIf="remote.imageURL" [hidden]="images"> <img src="{{remote.imageURL}}" class="video-images">
                 </div>
-
-                <!-- <div class="agora_remote video-containers" *ngIf="videoDestroyed"  [id]="remote.imageURL">
-                    <div class="user-uid">{{remote.username}}(Presentation)</div>
-                </div> -->
+                <div id="screen_share" [ngClass]="userName ? 'video-containers' : ''">
+                    <div class="user-uid">{{remote.userName | titlecase}}Screen is Present Now</div>
+                </div>
             </div>
+            <!-- </div> -->
+            <!-- <div *ngIf="videoDestroyed">
+            <div class="agora_remote video-containers" *ngFor="let screen of screenCalls" [id]="screen.uid">
+                <div class="user-uid">{{screen.username}}(Presentation)</div>
+            </div>
+           </div> -->
 
             <div id="footer" *ngIf="activeCall && userName">
                 <button (click)="onCamera($event)" class="icon-wrapper active" id="camera-btn">
@@ -65,7 +68,7 @@
             </div>
         </div>
     </div>
-    <div class="chat col-md-2">
+    <div class="chat col-md-3">
         <app-rtm-chat [showMePartially]="showVar" [usernames]="userName"></app-rtm-chat>
     </div>
 </div>

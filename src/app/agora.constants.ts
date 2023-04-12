@@ -10,5 +10,4 @@ export class AgoraConstants {
     public static uid = String(Math.floor(Math.random() * 2032));
     public static rtmUid = String(Math.floor(Math.random() * 2032));
     public static channelId = String(Math.floor(Math.random() * 2032));
-  
 }

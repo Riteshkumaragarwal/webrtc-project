@@ -7,6 +7,7 @@ import { AgoraConstants } from '../agora.constants';
 })
 export class AgoraRtcService {
   client: any;
+  screenClient: any
   trackName: any | undefined;
   track: any | undefined;
   player: any;
@@ -18,11 +19,17 @@ export class AgoraRtcService {
   remoteTracks: any = {}
 
   constructor() {
-    this.client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+    this.client = AgoraRTC.createClient({ mode: 'rtc', codec: 'h264' });
+    this.screenClient = AgoraRTC.createClient({mode: 'rtc', codec: 'vp8'});
   }
 
   async joinVideo(updateUid: any) {
     return this.client.join(AgoraConstants.appId, AgoraConstants.room,
+      AgoraConstants.token || null, updateUid || null)
+  }
+
+  async joinScreen(updateUid: any) {
+    return this.screenClient.join(AgoraConstants.appId, AgoraConstants.room,
       AgoraConstants.token || null, updateUid || null)
   }
 
@@ -33,9 +40,14 @@ export class AgoraRtcService {
     return this.client.publish([this.localTracks.audioTrack, this.localTracks.videoTrack])
   }
 
-  // async publishVideoTrack(){
-  //   this.localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-  // }
+  async unPublishStream(){
+    return this.client.unpublish([this.localTracks.audioTrack, this.localTracks.videoTrack])
+  }
+
+  async publishVideoTrack(){
+    this.localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+    // this.localTracks.screenTrack = await AgoraRTC.createScreenVideoTrack({});
+  }
 
   async PublishScreen(screenID:any){
     // this.client.join(AgoraConstants.appId, AgoraConstants.room,

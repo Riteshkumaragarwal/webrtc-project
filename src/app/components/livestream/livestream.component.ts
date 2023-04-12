@@ -2,6 +2,7 @@ import { Component, ElementRef, OnInit, Renderer2 } from '@angular/core';
 import { AgoraConstants } from 'src/app/agora.constants';
 import { AgoraRtcService } from 'src/app/services/agora-rtc.service';
 import { NgForm } from '@angular/forms';
+import { HttpService } from 'src/app/services/http.service';
 
 @Component({
   selector: 'app-livestream',
@@ -39,7 +40,7 @@ export class LivestreamComponent implements OnInit {
   screen: boolean = false
 
   constructor(private renderer: Renderer2, private el: ElementRef,
-    private agoraRTC: AgoraRtcService) { }
+    private agoraRTC: AgoraRtcService, private httpService: HttpService) { }
 
   ngOnInit(): void {
     this.client = this.agoraRTC.client;
@@ -58,12 +59,14 @@ export class LivestreamComponent implements OnInit {
 
   async joinBtn(event: NgForm) {
     console.log('event target-------------', event);
+    console.log('event target value-------------', event.value);
     this.activeCall = true
     this.uid = AgoraConstants.uid;
     this.userName = event.value.userName;
     this.profileImage = event.value.image;
     if (event.value.userName) {
-      let updateUid = this.userName + ', ' + AgoraConstants.uid + ', ' + this.profileImage
+      // this.httpService.createUser(event.value)
+      let updateUid = this.userName + ', ' + AgoraConstants.uid + ', ' + AgoraConstants.channelId
       await this.client.on('user-published', this.handleUserJoined.bind(this))
       await this.agoraRTC.joinVideo(updateUid)
       await this.agoraRTC.publishStream(this.localCall)
@@ -81,6 +84,30 @@ export class LivestreamComponent implements OnInit {
     await this.agoraRTC.publishStream(this.localCall)
   }
 
+  async onScreenShare(event: any) {
+    let screenButton = event.currentTarget
+    let cameraButton = document.getElementById('camera-btn')
+    if (!this.sharingScreen) {
+      this.sharingScreen = true;
+      // this.screen = false
+      screenButton.classList.add('active')
+      cameraButton?.classList.add('active')
+      this.renderer.setStyle(cameraButton, 'display', 'none');
+      await this.agoraRTC.joinScreen(AgoraConstants.channelId)
+      this.agoraRTC.PublishScreen(this.screenCall)
+
+    } else {
+      this.sharingScreen = false;
+      this.renderer.setStyle(cameraButton, 'display', 'block');
+      screenButton.classList.remove('active')
+      this.list = document.getElementById(this.localCall)
+      this.list?.removeChild(this.list.lastElementChild)
+      this.agoraRTC.unPublishScreen()
+      this.switchToCamera()
+    }
+  }
+
+
   async handleUserJoined(user: any, mediaType: any) {
     console.log(user)
     let uid = user.uid;
@@ -88,7 +115,7 @@ export class LivestreamComponent implements OnInit {
     let uidWithImage = uid.substring(uid.indexOf(', ') + 1)
     let userUid = uidWithImage.substring(0, uidWithImage.indexOf(', '))
     this.remoteUid = uidWithImage.substring(0, uidWithImage.indexOf(', '))
-    let remoteImageURL = uidWithImage.substring(uidWithImage.indexOf(', ') + 2);
+    let remoteImageURL = uidWithImage.substring(uidWithImage.indexOf(', ') + 1);
     console.log('---------------user joined stream---', userUid)
 
     this.client.on('user-left', () => {
@@ -99,14 +126,14 @@ export class LivestreamComponent implements OnInit {
     })
 
       // if (user.videoTrack && user.videoTrack._isDestroyed) {
-      //   if (!this.remoteCalls.includes(`agora_remote${userUid}`))
-      //   this.remoteCalls.push({
-      //     uid: `agora_remote${userUid}`, username: remoteUSerName,
-      //     imageURL: remoteImageURL
-      //   });
-      //   console.log('remotedata123---------', this.remoteCalls)
-      //   // await this.agoraRTC.publishVideoTrack();
-      //   setTimeout(() => user.videoTrack.play(`agora_remote${userUid}`), 1000);
+      //   // if (!this.remoteCalls.includes(`agora_remote${userUid}`))
+      //   // this.remoteCalls.push({
+      //   //   uid: `agora_remote${userUid}`, username: remoteUSerName,
+      //   //   imageURL: remoteImageURL
+      //   // });
+      //   // console.log('remotedata123---------', this.remoteCalls)
+      //   await this.agoraRTC.publishVideoTrack();
+      //   // setTimeout(() => user.videoTrack.play(`agora_remote${userUid}`), 1000);
       //   // this.agoraRTC.publishStream(`agora_remote${userUid}`)
       // }
     this.videoDestroyed = user.videoTrack?._isDestroyed
@@ -123,37 +150,32 @@ export class LivestreamComponent implements OnInit {
       if (!this.remoteCalls.includes(`agora_remote${userUid}`))
         this.remoteCalls.push({
           uid: `agora_remote${userUid}`, username: remoteUSerName,
-          imageURL: remoteImageURL
+          imageURL: `agora_remote${remoteImageURL}`
         });
       console.log('remotedata158---------', this.remoteCalls)
       setTimeout(() => user.videoTrack.play(`agora_remote${userUid}`), 1000);
+
+      // if (user.videoTrack && user.videoTrack._isDestroyed) {
+      //   if (!this.remoteCalls.includes(`agora_remote${userUid}`))
+      //   // this.remoteCalls.push({
+      //   //   uid: `agora_remote${userUid}`, username: remoteUSerName,
+      //   //   imageURL: `agora_remote${remoteImageURL}`
+      //   // });
+      //   this.remoteCalls.push({
+      //     uid: `agora_remote${userUid}`, username: remoteUSerName,
+      //     imageURL: `agora_remote${remoteImageURL}`
+      //   });
+      //   // await this.agoraRTC.publishVideoTrack();
+      //   // console.log('remotedata123---------', this.remoteCalls)
+      //   setTimeout(() => user.videoTrack.play(`agora_remote${userUid}`), 1000);
+      //   // setTimeout(() => user.videoTrack.play(`agora_remote${userUid}`), 2000);
+
+      // }
+   
     }
 
     if (mediaType === 'audio') {
       user.audioTrack.play();
-    }
-  }
-
-  async onScreenShare(event: any) {
-    let screenButton = event.currentTarget
-    let cameraButton = document.getElementById('camera-btn')
-    if (!this.sharingScreen) {
-      this.sharingScreen = true;
-      this.screen = false
-      screenButton.classList.add('active')
-      cameraButton?.classList.add('active')
-      this.renderer.setStyle(cameraButton, 'display', 'none');
-      // this.agoraRTC.joinVideo(AgoraConstants.channelId)
-      this.agoraRTC.PublishScreen(this.screenCall)
-
-    } else {
-      this.sharingScreen = false;
-      this.renderer.setStyle(cameraButton, 'display', 'block');
-      screenButton.classList.remove('active')
-      this.list = document.getElementById(this.localCall)
-      this.list?.removeChild(this.list.lastElementChild)
-      this.agoraRTC.unPublishScreen()
-      this.switchToCamera()
     }
   }
 

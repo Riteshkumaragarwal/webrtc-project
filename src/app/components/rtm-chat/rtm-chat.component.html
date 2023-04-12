@@ -1,16 +1,41 @@
-
-<div class="panel" *ngIf="showMePartially">
-    <div class="messages">
-        <div class="inner">
-            <div class="message" *ngFor="let message of messages">
-                <span class="sender" *ngIf="message.id && message.type === 'sender'">you:-</span>
-                <span class="reciever" *ngIf="message.id && message.type === 'receiver'">{{message.name}}:- </span>
-                <div id="message">{{ message.message }}</div>
+<div id="chat-bot" *ngIf="showMePartially">
+    <div class="messenger br10" id="fullBox">
+        <div class="chatroom">
+            <div class="datestamp">{{todayString | date}}</div>
+            <div *ngFor="let chat of chats">
+                <div class="msg msg-left" *ngIf="chat.name !== usernames">
+                    <div class="bubble">
+                        <h6 class="name-left">{{chat.name | titlecase}}</h6>
+                        {{ chat.message }}
+                    </div>
+                    <span class="timestamp">04:45 AM</span>
+                </div>
+                <div class="msg msg-right" *ngIf="chat.name == usernames">
+                    <div class="bubble">
+                        <h6 class="name-right">{{chat.name | titlecase}}</h6>
+                        {{ chat.message }}
+                    </div>
+                    <span class="timestamp">{{chat.timestamp | date : 'shortTime'}}</span>
+                </div>
             </div>
+
+        </div>
+        <div class="type-area">
+            <form #userData="ngForm" (ngSubmit)="onChatSubmit(userData)" class="form">
+                <input #messageInput type="text" name="message" ngModel id="input" class="typing"
+                    placeholder="Type Here...">
+                <button class="send" (click)="clearText()">
+                    <fa-icon [icon]="faPaperPlane" style='color:black'></fa-icon>
+                </button>
+            </form>
         </div>
     </div>
-    <form #userData="ngForm" (ngSubmit)="sendMessage(userData)">
-        <input #messageInput type="text" name="text" ngModel id="input" placeholder="Enter Your Message...">
-        <button (click)="clearText()">+</button>
-    </form>
+    <div class="icon" id="crossIcon" (click)="onClickIcon()">
+        <div class="user">
+            Close Group Chat
+        </div>
+        <div>
+            <fa-icon [icon]="faComments"></fa-icon>
+        </div>
+    </div>
 </div>
