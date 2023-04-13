@@ -16,12 +16,4 @@ export class HttpService {
           console.log(responseData);
         })
   }
-
-  // createMessage(userMessageData: RtmMessage) {
-  //   this.http
-  //     .post('https://webrtc-project-6f472-default-rtdb.firebaseio.com/message.json',
-  //       userMessageData).subscribe(responseData => {
-  //         console.log(responseData);
-  //       })
-  // }
 }

@@ -70,6 +70,8 @@ export class LivestreamComponent implements OnInit {
       await this.client.on('user-published', this.handleUserJoined.bind(this))
       await this.agoraRTC.joinVideo(updateUid)
       await this.agoraRTC.publishStream(this.localCall)
+      let cameraButton = document.getElementById('agora_local')
+      cameraButton?.classList.add('host-img')
       this.renderer.setStyle(document.getElementById('join'), 'display', 'none');
       this.showVar = !this.showVar
       this.inputShow = !this.inputShow;
@@ -93,7 +95,7 @@ export class LivestreamComponent implements OnInit {
       screenButton.classList.add('active')
       cameraButton?.classList.add('active')
       this.renderer.setStyle(cameraButton, 'display', 'none');
-      await this.agoraRTC.joinScreen(AgoraConstants.channelId)
+      // await this.agoraRTC.joinScreen(AgoraConstants.channelId)
       this.agoraRTC.PublishScreen(this.screenCall)
 
     } else {
@@ -174,6 +176,15 @@ export class LivestreamComponent implements OnInit {
    
     }
 
+    // if (mediaType === 'screen') {
+    //   const screenElement = document.createElement('video');
+    // screenElement.id = userUid + '-screen';
+    // screenElement.autoplay = true;
+    // screenElement.controls = false;
+    // document.body.appendChild(screenElement);
+    // user.screenTrack.play(screenElement);
+    // }
+
     if (mediaType === 'audio') {
       user.audioTrack.play();
     }
@@ -185,7 +196,7 @@ export class LivestreamComponent implements OnInit {
     this.showVar = !this.showVar
     this.inputShow = !this.inputShow;
     this.renderer.setStyle(document.getElementById('join'), 'display', 'block');
-    this.renderer.setProperty(document.getElementById('user-streams'), 'innerHTML', '');
+    // this.renderer.setProperty(document.getElementById('user-streams'), 'innerHTML', '');
     window.location.reload()
   }
 
