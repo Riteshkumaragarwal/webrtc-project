@@ -65,7 +65,7 @@ export class LivestreamComponent implements OnInit {
     this.userName = event.value.userName;
     this.profileImage = event.value.image;
     if (event.value.userName) {
-      // this.httpService.createUser(event.value)
+      this.httpService.createUser(event.value)
       let updateUid = this.userName + ', ' + AgoraConstants.uid + ', ' + AgoraConstants.channelId
       await this.client.on('user-published', this.handleUserJoined.bind(this))
       await this.agoraRTC.joinVideo(updateUid)
